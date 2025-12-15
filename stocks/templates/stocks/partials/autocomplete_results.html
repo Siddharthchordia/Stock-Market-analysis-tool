@@ -1,0 +1,11 @@
+<ul class="autocomplete-list">
+    {% for company in companies %}
+        <li>
+            <a href="{% url 'get-stock' company.ticker %}">
+                <strong>{{ company.ticker }}</strong>
+                <span>{{ company.name }}</span>
+            </a>
+        </li>
+
+    {% endfor %}
+</ul>

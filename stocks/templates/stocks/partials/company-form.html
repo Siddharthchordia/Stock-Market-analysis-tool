@@ -1,0 +1,32 @@
+{% load widget_tweaks %}
+
+<div class="mb-2 form-control">
+    {{ form.name|add_label_class:"label text-white" }}<br>
+    {% render_field form.name class='input text-black' %}
+</div>
+<div class="mb-2 form-control">
+    {{ form.ticker|add_label_class:"label text-white" }}<br>
+    {% render_field form.ticker class='input text-black' %}
+</div>
+<div class="mb-2 form-control">
+    {{ form.exchange|add_label_class:"label text-white" }}<br>
+    {% render_field form.exchange class='text-green-500 border-gray-300 rounded focus:ring-green-500' %}
+</div>
+<div class="mb-2 form-control">
+    {{ form.sector|add_label_class:"label text-white" }}<br>
+    {% render_field form.sector class='input text-black' %}
+</div>
+<div class="mb-2 form-control">
+    {{ form.industry|add_label_class:"label text-white" }}<br>
+    {% render_field form.industry class='input text-black' %}
+</div>
+
+<div class="mb-2 form-control">
+    {{ form.listing_date|add_label_class:"label text-white" }}<br>
+    {% render_field form.listing_date class='input text-black px-2' %}
+</div>
+
+<div class="mb-2 form-control">
+    {{ form.excel_file|add_label_class:"label text-white" }}<br>
+    {% render_field form.excel_file class='file-input file-input-bordered w-full max-w-xs text-black' %}
+</div>

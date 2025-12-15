@@ -1,0 +1,43 @@
+{% extends 'stocks/base.html' %}
+{% load static %}
+
+{% block head_title %}
+Lumeo — Insight, illuminated
+{% endblock %}
+
+{% block content %}
+<div class="search-page flex flex-col items-center">
+
+    <!-- Branding (OUTSIDE the search box) -->
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-semibold tracking-tight text-slate-900">
+            Lumeo
+        </h1>
+        <p class="text-sm font-light text-slate-500 mt-1">
+            Insights, illuminated
+        </p>
+    </div>
+
+    <div class="search-container">
+        <input
+            type="search"
+            name="q"
+            placeholder="Search by stock name or ticker…"
+            autocomplete="off"
+
+            hx-get="{% url 'stock-autocomplete' %}"
+            hx-trigger="keyup changed delay:300ms"
+            hx-target="#autocomplete-results"
+            hx-swap="innerHTML"
+        />
+
+        <div id="autocomplete-results"></div>
+    </div>
+
+
+    <p class="text-xs text-slate-400 mt-4">
+        Start typing a company name or ticker to view financials
+    </p>
+
+</div>
+{% endblock content %}

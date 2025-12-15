@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Virtual Env
+venv/
+env/
+ENV/
+
+# VS Code
+.vscode/
+
+# Environment variables
+.env
+
+# MacOS
+.DS_Store
+
+# Excel files (assuming these are data/test files)
+*.xlsx

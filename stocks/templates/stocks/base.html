@@ -1,0 +1,102 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" data-theme="cupcake">
+
+<head>
+
+
+
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="static/images/logo2.svg">
+    <title>
+
+        {% block head_title %}
+        {% endblock %}
+    </title>
+
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="{% static 'js/htmx.min.js' %}"
+        integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz"
+        crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+
+
+
+    <!-- Custom files -->
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
+
+
+    {% block extra_head %}
+
+    {% endblock %}
+</head>
+
+<body hx-headers="{'X-CSRFToken':'{{ csrf_token }}'}">
+
+    {% include 'stocks/partials/navbar.html' %}
+
+    
+
+        {% block content %}
+        <div class=" mx-auto px-5 pt-24">
+        {% block maincontent %}
+        {% endblock %}
+        </div>
+        {% endblock %}
+
+
+
+
+        <footer class="mt-20">
+            <div class="max-w-screen-xl mx-auto px-6 py-6">
+
+                <div class="flex flex-col items-center text-center gap-1
+                            rounded-2xl
+                            bg-white/60 backdrop-blur-xl
+                            border border-white/70
+                            shadow-sm
+                            py-6">
+
+                    <div class="text-lg font-semibold text-slate-900 tracking-tight">
+                        Lumeo
+                    </div>
+
+                    <div class="text-xs text-slate-500">
+                        Insights, illuminated
+                    </div>
+
+                    <div class="mt-2 text-xs text-slate-400">
+                        Lumeo © {% now "Y" %}
+                    </div>
+                    <div class="mt-2 text-xs text-slate-400">
+                        Made with ❤️ in India
+                    </div>
+                    <div class="mt-2 text-xs text-slate-500">
+                        By Siddharth Chordia
+                    </div>
+
+                </div>
+
+            </div>
+        </footer>
+
+    
+
+
+
+</body>
+<script>
+    document.body.addEventListener('htmx:configRequest', (event) => {
+        const csrf = document.querySelector('meta[name="csrf-token"]').content;
+        event.detail.headers['X-CSRFToken'] = csrf;
+    });
+</script>
+
+</html>

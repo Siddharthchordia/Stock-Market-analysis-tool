@@ -1,0 +1,226 @@
+{% extends "stocks/base.html" %}
+{% load humanize %}
+
+{% block container_class %}max-w-screen-2xl{% endblock %}
+
+{% block head_title %}
+{{ company.name }} - Financials
+{% endblock %}
+
+{% block maincontent %}
+<div class="space-y-5">
+    <!-- Header / Stock Info -->
+    <div class="glass-panel p-6 rounded-2xl">
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-4xl font-bold text-slate-900 mb-2">
+                    {{ company.name }}
+                </h1>
+
+                <div class="text-slate-500 text-sm flex gap-6">
+                    <span>
+                        Ticker:
+                        <span class="text-slate-800 font-medium">
+                            {{ company.ticker }}
+                        </span>
+                    </span>
+                    <span>
+                        Sector:
+                        <span class="text-slate-800 font-medium">
+                            {{ company.sector }}
+                        </span>
+                    </span>
+                    <span>
+                        Exchange:
+                        <span class="text-slate-800 font-medium">
+                            {{ company.get_exchange_display }}
+                        </span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="text-right">
+                <div class="text-3xl font-bold text-amber-600">
+                    ₹{{ current_price|default:"--" }}
+                </div>
+                <div class="text-sm text-amber-500">
+                    Current Price
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quarterly Results -->
+    {% if quarterly_data %}
+    <div class="glass-panel p-6 rounded-2xl">
+        <h2 class="text-2xl font-semibold mb-6 text-slate-800 border-b border-slate-200 pb-2">
+            Quarterly Results
+        </h2>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead>
+                    <tr class="text-slate-500 border-b border-slate-200">
+                        <th class="py-3 px-4 font-medium whitespace-nowrap">Metric</th>
+                        {% for period in quarterly_periods %}
+                        <th class="py-3 px-4 font-medium text-right whitespace-nowrap">
+                            {{ period }}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-slate-200/60">
+                    {% for row in quarterly_data %}
+                    <tr class="hover:bg-amber-50/40 transition-colors">
+                        <td class="py-3 px-4 font-medium text-slate-700 whitespace-nowrap">
+                            {{ row.metric }}
+                        </td>
+                        {% for value in row.values %}
+                        <td class="py-3 px-4 text-right text-slate-600 whitespace-nowrap">
+                            {{ value|default:"--"|floatformat:2|intcomma }}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Profit & Loss -->
+    {% if pnl_data %}
+    <div class="glass-panel p-6 rounded-2xl">
+        <h2 class="text-2xl font-semibold mb-6 text-slate-800 border-b border-slate-200 pb-2">
+            Profit & Loss
+        </h2>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead>
+                    <tr class="text-slate-500 border-b border-slate-200">
+                        <th class="py-3 px-4 font-medium whitespace-nowrap">Metric</th>
+                        {% for period in pnl_periods %}
+                        <th class="py-3 px-4 font-medium text-right whitespace-nowrap">
+                            {{ period }}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-slate-200/60">
+                    {% for row in pnl_data %}
+                    <tr class="hover:bg-amber-50/40 transition-colors">
+                        <td class="py-3 px-4 font-medium text-slate-700 whitespace-nowrap">
+                            {{ row.metric }}
+                        </td>
+                        {% for value in row.values %}
+                        <td class="py-3 px-4 text-right text-slate-600 whitespace-nowrap">
+                            {{ value|default:"N/A"|floatformat:2|intcomma }}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Balance Sheet -->
+    {% if bs_data %}
+    <div class="glass-panel p-6 rounded-2xl">
+        <h2 class="text-2xl font-semibold mb-6 text-slate-800 border-b border-slate-200 pb-2">
+            Balance Sheet
+        </h2>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead>
+                    <tr class="text-slate-500 border-b border-slate-200">
+                        <th class="py-3 px-4 font-medium whitespace-nowrap">Metric</th>
+                        {% for period in bs_periods %}
+                        <th class="py-3 px-4 font-medium text-right whitespace-nowrap">
+                            {{ period }}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-slate-200/60">
+                    {% for row in bs_data %}
+                    <tr class="hover:bg-amber-50/40 transition-colors">
+                        <td class="py-3 px-4 font-medium text-slate-700 whitespace-nowrap">
+                            {{ row.metric }}
+                        </td>
+                        {% for value in row.values %}
+                        <td class="py-3 px-4 text-right text-slate-600 whitespace-nowrap">
+                            {{ value|default:"--"|floatformat:2|intcomma }}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Cash Flow -->
+    {% if cf_data %}
+    <div class="glass-panel p-6 rounded-2xl">
+        <h2 class="text-2xl font-semibold mb-6 text-slate-800 border-b border-slate-200 pb-2">
+            Cash Flows
+        </h2>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead>
+                    <tr class="text-slate-500 border-b border-slate-200">
+                        <th class="py-3 px-4 font-medium whitespace-nowrap">Metric</th>
+                        {% for period in cf_periods %}
+                        <th class="py-3 px-4 font-medium text-right whitespace-nowrap">
+                            {{ period }}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-slate-200/60">
+                    {% for row in cf_data %}
+                    <tr class="hover:bg-amber-50/40 transition-colors">
+                        <td class="py-3 px-4 font-medium text-slate-700 whitespace-nowrap">
+                            {{ row.metric }}
+                        </td>
+                        {% for value in row.values %}
+                        <td class="py-3 px-4 text-right text-slate-600 whitespace-nowrap">
+                            {{ value|default:"--"|floatformat:2|intcomma }}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.glass-panel {
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.85),
+            rgba(255, 255, 255, 0.6)
+        );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow:
+        0 24px 48px rgba(15, 23, 42, 0.08),
+        inset 0 1px 1px rgba(255, 255, 255, 0.9);
+}
+</style>
+{% endblock maincontent%}
