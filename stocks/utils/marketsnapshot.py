@@ -1,5 +1,6 @@
 import yfinance as yf
-from stocks.models import Company, CompanyMarketSnapshot
+from stocks.models import Company, CompanyMarketSnapshot, CompanyHistory
+from stocks.utils.import_excel import get_history
 
 def get_live_snapshot(company: Company):
     try:
@@ -20,4 +21,5 @@ def get_live_snapshot(company: Company):
 
 def regular_job():
     for company in Company.objects.filter(is_active=True):
+        get_history(company)
         get_live_snapshot(company)
