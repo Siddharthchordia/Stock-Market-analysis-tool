@@ -1,0 +1,44 @@
+{% load static %}
+
+{% if chart_data.has_data %}
+<div
+    class="relative w-full p-6 mb-6 bg-white/80 backdrop-blur-md rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-md">
+    <!-- Header & Controls -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div>
+            <h3 class="text-lg font-bold text-gray-800 tracking-tight">Price & Volume</h3>
+            <p class="text-xs text-gray-500 font-medium mt-1">Historical performance</p>
+        </div>
+
+        <!-- Range Selector (Populated by JS) -->
+        <div id="chart-range-controls" class="flex flex-wrap gap-1 p-1 bg-gray-100/50 rounded-lg">
+            <!-- Buttons will be injected here by charts.js -->
+        </div>
+    </div>
+
+    <!-- Chart Container -->
+    <div class="relative w-full h-[400px]"> <!-- Fixed height for consistency -->
+        <canvas id="priceVolumeCanvas"></canvas>
+    </div>
+
+    <!-- Data Injection -->
+    {{ chart_data|json_script:"chart-data-source" }}
+
+    <!-- Initialization Script -->
+    
+</div>
+{% else %}
+<!-- Clean Empty State -->
+<div
+    class="w-full h-[400px] flex flex-col items-center justify-center p-6 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+    <div class="w-16 h-16 mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+            </path>
+        </svg>
+    </div>
+    <h3 class="text-sm font-semibold text-gray-900">No Data Available</h3>
+    <p class="text-sm text-gray-500 mt-1">Chart data could not be loaded for this stock.</p>
+</div>
+{% endif %}

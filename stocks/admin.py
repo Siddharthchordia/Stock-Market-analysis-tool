@@ -18,9 +18,13 @@ from .models import (
 from .forms import FinancialValueAdminForm, CompanyAdminForm
 from stocks.utils.import_excel import import_data_sheet
 from stocks.utils.marketsnapshot import get_live_snapshot
+from stocks.utils.get_historical_data import get_history
 
 
-admin.site.register(CompanyHistory)
+# admin.site.register(CompanyHistory)
+@admin.register(CompanyHistory)
+class CompanyHistoryAdmin(admin.ModelAdmin):
+    list_filter=['company']
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
@@ -32,6 +36,7 @@ class CompanyAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
         get_live_snapshot(obj)
+        get_history(obj)
         excel_file = form.cleaned_data.get("excel_file")
 
 
@@ -46,6 +51,7 @@ class CompanyAdmin(admin.ModelAdmin):
                     file_path=tmp_path,
                     company_ticker=obj.ticker
                 )
+
             finally:
                 os.remove(tmp_path)
 

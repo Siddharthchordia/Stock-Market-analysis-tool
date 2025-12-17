@@ -8,30 +8,11 @@ from stocks.models import (
     MetricCategory,
     TimePeriod,
     FinancialValue,
-    CompanyHistory
 )
-import yfinance as yf
 
 from stocks.utils.gen_fundamentals import generate_company_fundamentals
 
-def get_history(company: Company):
-    symbol = f"{company.ticker}.NS"
-    stock = yf.Ticker(symbol)
-    df = stock.history(start="1900-01-01")
-    records=[]
-    for idx,row in df.iterrows():
-        records.append(
-            CompanyHistory(
-                company=company,
-                date = idx.date(),
-                closing_price=row["Close"],
-                volume = row['Volume']
-            )
-        )
-    CompanyHistory.objects.bulk_create(
-        records,
-        ignore_conflicts=True
-    )
+
 
 def normalize_code(name: str) -> str:
     return (
@@ -71,7 +52,7 @@ def get_or_create_time_period(dt, report_type: str) -> TimePeriod:
         raise ValueError("Invalid report_type")
 
     obj, _ = TimePeriod.objects.get_or_create(
-        year=year - 1 if quarter == 4 or period_type == "annual" else year,
+        year=year - 1 if quarter == 4 else year,
         quarter=quarter,
         period_type=period_type,
     )
@@ -92,9 +73,6 @@ def get_or_create_metric(name: str, category_code: str) -> Metric:
     return metric
 
 
-# =====================================================
-# Section configuration
-# =====================================================
 
 SECTION_MAP = {
     "PROFIT & LOSS": {"category": "PNL", "report_type": "annual"},
@@ -111,11 +89,6 @@ IGNORED_SECTIONS = {
     "TRENDS",
 }
 
-
-# =====================================================
-# Main Importer
-# =====================================================
-
 @transaction.atomic
 def import_data_sheet(
     file_path: str,
@@ -126,9 +99,6 @@ def import_data_sheet(
     and regenerates CompanyFundamental after import.
     """
 
-    # ---------------------------------------------
-    # Company
-    # ---------------------------------------------
     company, _ = Company.objects.get_or_create(
         ticker=company_ticker,
         defaults={
@@ -141,9 +111,6 @@ def import_data_sheet(
         },
     )
 
-    # ---------------------------------------------
-    # Read Excel
-    # ---------------------------------------------
     df = pd.read_excel(
         file_path,
         sheet_name="Data Sheet",
@@ -208,4 +175,3 @@ def import_data_sheet(
                     defaults={"value": value},
                 )
     generate_company_fundamentals(company)
-    get_history(company)

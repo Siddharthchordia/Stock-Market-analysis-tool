@@ -37,13 +37,13 @@
                             {{ company.get_exchange_display }}
                         </span>
                     </span>
-                    
-                    
+
+
                 </div>
             </div>
             <div class="text-right">
                 <div class="text-3xl font-bold text-amber-600">
-                    ₹{{ snapshot.price|default:"--"|floatformat:2|intcomma }}
+                    ₹{{ snapshot.price|default:"--"|floatformat:2| indian_comma }}
                 </div>
                 <div class="text-sm text-amber-500">
                     Current Price
@@ -51,76 +51,79 @@
             </div>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 text-sm pt-2">
-        <div>
-            <div class="text-slate-500">Revenue</div>
-            <div class="font-semibold text-slate-800">
-                ₹{{ fundamentals.revenue|default:"--"|floatformat:0 |intcomma }} Crs.
+            <div>
+                <div class="text-slate-500">Revenue</div>
+                <div class="font-semibold text-slate-800">
+                    ₹{{ fundamentals.revenue|default:"--"|floatformat:0 | indian_comma }} Crs.
+                </div>
             </div>
-        </div>
 
-        <div>
-            <div class="text-slate-500">Op. Margin</div>
-            <div class="font-semibold text-slate-800">
-                {{ fundamentals.operating_margin|default:"--"|floatformat:2 }}%
+            <div>
+                <div class="text-slate-500">Op. Margin</div>
+                <div class="font-semibold text-slate-800">
+                    {{ fundamentals.operating_margin|default:"--"|floatformat:2 }}%
+                </div>
             </div>
-        </div>
 
-        <div>
-            <div class="text-slate-500">Net Margin</div>
-            <div class="font-semibold text-slate-800">
-                {{ fundamentals.net_margin|default:"--"|floatformat:2 }}%
+            <div>
+                <div class="text-slate-500">Net Margin</div>
+                <div class="font-semibold text-slate-800">
+                    {{ fundamentals.net_margin|default:"--"|floatformat:2 }}%
+                </div>
             </div>
-        </div>
 
-        <div>
-            <div class="text-slate-500">ROE</div>
-            <div class="font-semibold text-slate-800">
-                {{ fundamentals.roe|default:"--"|floatformat:2 }}%
+            <div>
+                <div class="text-slate-500">ROE</div>
+                <div class="font-semibold text-slate-800">
+                    {{ fundamentals.roe|default:"--"|floatformat:2 }}%
+                </div>
             </div>
-        </div>
 
-        <div>
-            <div class="text-slate-500">ROCE</div>
-            <div class="font-semibold text-slate-800">
-                {{ fundamentals.roce|default:"--"|floatformat:2 }}%
+            <div>
+                <div class="text-slate-500">ROCE</div>
+                <div class="font-semibold text-slate-800">
+                    {{ fundamentals.roce|default:"--"|floatformat:2 }}%
+                </div>
             </div>
-        </div>
 
-        <div>
-            <div class="text-slate-500">Debt / Equity</div>
-            <div class="font-semibold text-slate-800">
-                {{ fundamentals.debt_to_equity|default:"--"|floatformat:2 }}
+            <div>
+                <div class="text-slate-500">Debt / Equity</div>
+                <div class="font-semibold text-slate-800">
+                    {{ fundamentals.debt_to_equity|default:"--"|floatformat:2 }}
+                </div>
             </div>
-        </div>
-        <div>
-            <div class="text-slate-500">Market Cap.</div>
-            <div class="font-semibold text-slate-800">
-                ₹{{ snapshot.market_cap | to_crore |default:"--"| floatformat:2|intcomma }} Crs.
+            <div>
+                <div class="text-slate-500">Market Cap.</div>
+                <div class="font-semibold text-slate-800">
+                    ₹{{ snapshot.market_cap | to_crore |default:"--"| floatformat:2 |  indian_comma }} Crs.
+                </div>
             </div>
-        </div>
-        <div>
-            <div class="text-slate-500">P/E</div>
-            <div class="font-semibold text-slate-800">
-                {{ snapshot.pe |default:"--"| floatformat:2 }} 
+            <div>
+                <div class="text-slate-500">P/E</div>
+                <div class="font-semibold text-slate-800">
+                    {{ snapshot.pe |default:"--"| floatformat:2 }}
+                </div>
             </div>
-        </div>
-        <div>
-            <div class="text-slate-500">P/B</div>
-            <div class="font-semibold text-slate-800">
-                {{ snapshot.pb |default:"--"| floatformat:2 }} 
+            <div>
+                <div class="text-slate-500">P/B</div>
+                <div class="font-semibold text-slate-800">
+                    {{ snapshot.pb |default:"--"| floatformat:2 }}
+                </div>
             </div>
-        </div>
-        <div>
-            <div class="text-slate-500">52W High/Low</div>
-            <div class="font-semibold text-slate-800">
-                {{ snapshot.high_52w |default:"--"| floatformat:0|intcomma }} / {{ snapshot.low_52w |default:"--"| floatformat:0|intcomma }}
+            <div>
+                <div class="text-slate-500">52W High/Low</div>
+                <div class="font-semibold text-slate-800">
+                    {{ snapshot.high_52w |default:"--"| floatformat:0| indian_comma }} / {{ snapshot.low_52w|default:"--"|floatformat:0| indian_comma }}
+                </div>
             </div>
-        </div>
 
 
+        </div>
     </div>
-</div>
 
+
+    <!-- Price & Volume Chart -->
+    {% include 'stocks/partials/_price_volume_chart.html' %}
 
     {% include "stocks/partials/financial_table.html" with title="Quarterly Results" table_data=quarterly_data periods=quarterly_periods %}
 
@@ -132,20 +135,18 @@
 
 
 
-<style>
-.glass-panel {
-    background:
-        linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.85),
-            rgba(255, 255, 255, 0.6)
-        );
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    box-shadow:
-        0 24px 48px rgba(15, 23, 42, 0.08),
-        inset 0 1px 1px rgba(255, 255, 255, 0.9);
-}
-</style>
-{% endblock maincontent%}
+    <style>
+        .glass-panel {
+            background:
+                linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.85),
+                    rgba(255, 255, 255, 0.6));
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow:
+                0 24px 48px rgba(15, 23, 42, 0.08),
+                inset 0 1px 1px rgba(255, 255, 255, 0.9);
+        }
+    </style>
+    {% endblock maincontent%}

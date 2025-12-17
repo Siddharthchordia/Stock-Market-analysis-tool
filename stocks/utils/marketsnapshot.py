@@ -9,7 +9,7 @@ def get_live_snapshot(company: Company):
         CompanyMarketSnapshot.objects.update_or_create( 
             company=company,
             defaults={
-            "price": price,
+            "price": info.get("currentPrice"),
             "market_cap": info.get("marketCap"),
             "pe": info.get("trailingPE"),
             "pb": info.get("priceToBook"),

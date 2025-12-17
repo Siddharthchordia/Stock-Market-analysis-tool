@@ -23,6 +23,7 @@ python-dotenv==1.2.1
 pytz==2025.2
 six==1.17.0
 sqlparse==0.5.4
+pytest-django
 tablib==3.9.0
 psycopg[binary]
 yfinance==0.2.66

@@ -54,6 +54,21 @@ def get_stock(request,ticker):
     bs_periods, bs_data = get_table_data('annual', 'BS')
     cf_periods, cf_data = get_table_data('annual', 'CF')
     snapshot = company.market
+
+    history = company.price_history.all().order_by('date')
+    if history.exists():
+        chart_dates = [h.date.strftime('%Y-%m-%d') for h in history]
+        chart_prices = [float(h.closing_price) for h in history]
+        chart_volumes = [h.volume for h in history]
+        chart_data = {
+            'dates': chart_dates,
+            'prices': chart_prices,
+            'volumes': chart_volumes,
+            'has_data': True
+        }
+    else:
+        chart_data = {'has_data': False}
+
     context = {
         'company': company,
         'snapshot':snapshot,
@@ -66,6 +81,7 @@ def get_stock(request,ticker):
         'bs_data': bs_data,
         'cf_periods': cf_periods,
         'cf_data': cf_data,
+        'chart_data': chart_data,
     }
     return render(request, 'stocks/stock-base.html', context)
 

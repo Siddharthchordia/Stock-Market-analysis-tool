@@ -21,4 +21,4 @@ COPY . /app/
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "cron && python manage.py runserver 0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py crontab remove && python manage.py crontab add && cron && python manage.py runserver 0.0.0.0:8000"]

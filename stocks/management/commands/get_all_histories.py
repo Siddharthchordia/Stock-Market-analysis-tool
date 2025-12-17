@@ -1,4 +1,4 @@
-from stocks.utils.import_excel import get_history
+from stocks.utils.get_historical_data import get_history
 from django.core.management.base import BaseCommand
 from stocks.models import Company
 
