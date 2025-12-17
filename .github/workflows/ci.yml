@@ -11,14 +11,18 @@ jobs:
             postgres:
                 image: postgres:16
                 env:
-                    POSTGRES_DB: stockinsight_db
-                    POSTGRES_USER: stockinsight_user
-                    POSTGRES_PASSWORD: stockinsight_password
+                    POSTGRES_DB: CIstockinsight_db
+                    POSTGRES_USER: CIstockinsight_user
+                    POSTGRES_PASSWORD: CIstockinsight_password
                 ports:
                     - 5432:5432
         env:
             DJANGO_SETTINGS_MODULE: stock_tracker.settings
-            DATABASE_URL: postgres://stockinsight_user:stockinsight_password@localhost:5432/stockinsight_db
+            POSTGRES_DB: CIstockinsight_db
+            POSTGRES_USER: CIstockinsight_user
+            POSTGRES_PASSWORD: CIstockinsight_password
+            POSTGRES_HOST: postgres
+            POSTGRES_PORT: 5432
             SECRET_KEY: ci-dummy-secret-key
             DJANGO_ALLOWED_HOSTS: "*"
         steps:
