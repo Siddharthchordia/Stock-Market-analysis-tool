@@ -1,39 +1,69 @@
 name: StockinSight Tests
+
 on:
-    push:
-        branches: [ main, master ]
-    pull_request:
-        branches: [ main, master ]
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        services:
-            postgres:
-                image: postgres:16
-                env:
-                    POSTGRES_DB: CIstockinsight_db
-                    POSTGRES_USER: CIstockinsight_user
-                    POSTGRES_PASSWORD: CIstockinsight_password
-                ports:
-                    - 5432:5432
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
         env:
-            DJANGO_SETTINGS_MODULE: stock_tracker.settings
-            POSTGRES_DB: CIstockinsight_db
-            POSTGRES_USER: CIstockinsight_user
-            POSTGRES_PASSWORD: CIstockinsight_password
-            POSTGRES_HOST: localhost
-            POSTGRES_PORT: 5432
-            SECRET_KEY: ci-dummy-secret-key
-            DJANGO_ALLOWED_HOSTS: "*"
-        steps:
-            - uses: actions/checkout@v4
-            - uses: actions/setup-python@v5
-              with:
-                    python-version: "3.12"
-            - run: |
-                python -m pip install --upgrade pip
-                pip install -r requirements.txt
-            - run: |
-                pytest
+          POSTGRES_DB: CIstockinsight_db
+          POSTGRES_USER: CIstockinsight_user
+          POSTGRES_PASSWORD: CIstockinsight_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U CIstockinsight_user -d CIstockinsight_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
+    env:
+      DJANGO_SETTINGS_MODULE: stock_tracker.settings
+      POSTGRES_DB: CIstockinsight_db
+      POSTGRES_USER: CIstockinsight_user
+      POSTGRES_PASSWORD: CIstockinsight_password
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+
+      SECRET_KEY: ci-dummy-secret-key
+      DJANGO_ALLOWED_HOSTS: "*"
+
+      CELERY_TASK_ALWAYS_EAGER: "true"
+      CELERY_TASK_EAGER_PROPAGATES: "true"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          pytest
