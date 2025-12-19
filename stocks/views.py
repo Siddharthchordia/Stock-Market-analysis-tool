@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Company, FinancialValue, TimePeriod, Metric,CompanyFundamental
+from .models import Company, FinancialValue, TimePeriod, Metric,CompanyFundamental, Index
 from django.db.models import Q
 from stocks.utils.marketsnapshot import get_live_snapshot
 
@@ -54,16 +54,35 @@ def get_stock(request,ticker):
     bs_periods, bs_data = get_table_data('annual', 'BS')
     cf_periods, cf_data = get_table_data('annual', 'CF')
     snapshot = company.market
-
     history = company.price_history.all().order_by('date')
     if history.exists():
         chart_dates = [h.date.strftime('%Y-%m-%d') for h in history]
         chart_prices = [float(h.closing_price) for h in history]
         chart_volumes = [h.volume for h in history]
+        
+        # Nifty 50 Comparison Data
+        nifty_prices = []
+        nifty_index = Index.objects.filter(ticker="NIFTY50").first()
+        
+        if nifty_index:
+            # Fetch relevant Nifty history
+            n_history = nifty_index.history.filter(
+                date__gte=history.first().date,
+                date__lte=history.last().date
+            ).values('date', 'value')
+            
+            # Create lookup dict {date_str: value}
+            n_lookup = {h['date'].strftime('%Y-%m-%d'): float(h['value']) for h in n_history}
+            
+            # Align with company dates
+            for d in chart_dates:
+                nifty_prices.append(n_lookup.get(d, None))
+        
         chart_data = {
             'dates': chart_dates,
             'prices': chart_prices,
             'volumes': chart_volumes,
+            'index_prices': nifty_prices,
             'has_data': True
         }
     else:
@@ -81,7 +100,7 @@ def get_stock(request,ticker):
         'bs_data': bs_data,
         'cf_periods': cf_periods,
         'cf_data': cf_data,
-        'chart_data': chart_data,
+        'chart_data': chart_data
     }
     return render(request, 'stocks/stock-base.html', context)
 
