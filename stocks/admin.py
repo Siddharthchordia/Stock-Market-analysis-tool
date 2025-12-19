@@ -12,13 +12,14 @@ from .models import (
     FinancialValue,
     CompanyFundamental,
     CompanyMarketSnapshot,
-    CompanyHistory
-
+    CompanyHistory,
+    Index,IndexCategory,IndexHistory
 )
 from .forms import FinancialValueAdminForm, CompanyAdminForm
 from stocks.utils.import_excel import import_data_sheet
 from stocks.utils.marketsnapshot import get_live_snapshot
 from stocks.utils.get_historical_data import get_history
+from stocks.utils.get_index_histories import get_index_history
 
 
 # admin.site.register(CompanyHistory)
@@ -56,7 +57,23 @@ class CompanyAdmin(admin.ModelAdmin):
                 os.remove(tmp_path)
 
 
+# admin.site.register(IndexHistory)
+@admin.register(IndexHistory)
+class IndexHistoryAdmin(admin.ModelAdmin):
+    list_display=["index",'date','value']
+    ordering=['-date']
+    
 
+
+@admin.register(Index)
+class IndexAdmin(admin.ModelAdmin):
+    list_display = ['name','ticker','exchange','category']
+    list_filter = ['name','ticker','exchange','category']
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        get_index_history(obj)
+
+admin.site.register(IndexCategory)
 
 @admin.register(CompanyMarketSnapshot)
 class CompanyMarketSnapshotAdmin(admin.ModelAdmin):

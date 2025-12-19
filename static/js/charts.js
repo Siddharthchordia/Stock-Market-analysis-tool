@@ -109,7 +109,8 @@ class PriceVolumeChart {
         return {
             dates: this.data.dates.slice(startIndex),
             prices: this.data.prices.slice(startIndex),
-            volumes: this.data.volumes.slice(startIndex)
+            volumes: this.data.volumes.slice(startIndex),
+            index_prices: this.data.index_prices ? this.data.index_prices.slice(startIndex) : []
         };
     }
 
@@ -120,6 +121,9 @@ class PriceVolumeChart {
             this.chart.data.labels = sliced.dates;
             this.chart.data.datasets[0].data = sliced.volumes;
             this.chart.data.datasets[1].data = sliced.prices;
+            if (this.chart.data.datasets[2]) {
+                this.chart.data.datasets[2].data = sliced.index_prices;
+            }
             this.chart.update();
         } else {
             this.renderChart(sliced);
@@ -129,38 +133,67 @@ class PriceVolumeChart {
     renderChart(data) {
         if (this.chart) this.chart.destroy();
 
+        const datasets = [
+            {
+                label: 'Volume',
+                type: 'bar',
+                data: data.volumes,
+                yAxisID: 'y-volume',
+                backgroundColor: 'rgba(148, 163, 184, 0.35)', // slate glass
+                barPercentage: 0.6,
+                order: 3
+            },
+            {
+                label: 'Price',
+                type: 'line',
+                data: data.prices,
+                yAxisID: 'y-price',
+                borderColor: '#F59E0B', // warm amber
+                backgroundColor: 'rgba(251, 191, 36, 0.25)',
+                borderWidth: 2.5,
+                tension: 0.05,
+                pointRadius: 0,
+                fill: true,
+                order: 1
+            }
+        ];
+
+        // Add Nifty 50 dataset if available
+        if (data.index_prices && data.index_prices.length > 0) {
+            datasets.push({
+                label: 'Nifty 50',
+                type: 'line',
+                data: data.index_prices,
+                yAxisID: 'y-index',
+                borderColor: '#0F766E',
+                borderWidth: 2,
+                tension: 0.05,
+                pointRadius: 0,
+                fill: false,
+                order: 2
+            });
+        }
+
         this.chart = new Chart(this.ctx, {
             data: {
                 labels: data.dates,
-                datasets: [
-                    {
-                        label: 'Volume',
-                        type: 'bar',
-                        data: data.volumes,
-                        yAxisID: 'y-volume',
-                        backgroundColor: 'rgba(148, 163, 184, 0.35)', // slate glass
-                        barPercentage: 0.6
-                    },
-                    {
-                        label: 'Price',
-                        type: 'line',
-                        data: data.prices,
-                        yAxisID: 'y-price',
-                        borderColor: '#F59E0B', // warm amber
-                        backgroundColor: 'rgba(251, 191, 36, 0.25)',
-                        borderWidth: 2.5,
-                        tension: 0.05,
-                        pointRadius: 0,
-                        fill: true
-                    }
-                ]
+                datasets: datasets
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
-                    legend: { display: false },
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        align: 'end',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 8,
+                            font: { size: 11 }
+                        }
+                    },
                     tooltip: {
                         backgroundColor: 'rgba(255,255,255,0.95)',
                         borderColor: 'rgba(0,0,0,0.08)',
@@ -170,8 +203,13 @@ class PriceVolumeChart {
                         callbacks: {
                             label: ctx => {
                                 const v = ctx.parsed.y;
+                                if (v === null || v === undefined) return null;
+
                                 if (ctx.dataset.yAxisID === 'y-price') {
                                     return `Price: ₹${v.toLocaleString('en-IN')}`;
+                                }
+                                if (ctx.dataset.yAxisID === 'y-index') {
+                                    return `Nifty 50: ${v.toLocaleString('en-IN')}`;
                                 }
                                 return `Volume: ${v.toLocaleString('en-IN')}`;
                             }
@@ -187,18 +225,26 @@ class PriceVolumeChart {
                         }
                     },
                     'y-volume': {
+                        type: 'linear',
                         position: 'left',
                         beginAtZero: true,
                         grid: { display: false },
-                        ticks: { color: '#64748B' }
+                        ticks: { display: false } // Hide volume ticks to save space
                     },
                     'y-price': {
+                        type: 'linear',
                         position: 'right',
                         grid: {
                             color: 'rgba(15,23,42,0.04)',
                             borderDash: [3, 6]
                         },
                         ticks: { color: '#64748B' }
+                    },
+                    'y-index': {
+                        type: 'linear',
+                        position: 'right',
+                        display: false, // Hide axis labels but keep scaling
+                        grid: { display: false }
                     }
                 }
             }

@@ -3,6 +3,65 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 
 
+class IndexCategory(models.Model):
+    code = models.CharField(_("Code"), max_length=50, unique = True)
+    name=models.CharField(_("Category"), max_length=100)
+
+    class Meta:
+        verbose_name = _("IndexCategory")
+        verbose_name_plural = _("IndexCategories")
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("IndexCategory_detail", kwargs={"pk": self.pk})
+
+class Index(models.Model):
+    EXCHANGE_CHOICES = (
+        ("nse", "NSE"),
+        ("bse", "BSE"),
+    )
+    name=models.CharField(_("Name"), max_length=50)
+    ticker=models.CharField(_("Ticker"), max_length=50)
+    exchange = models.CharField(_("Exchange"),choices=EXCHANGE_CHOICES, max_length=50)
+    category=models.ForeignKey(IndexCategory, verbose_name=_("Index Category"), on_delete=models.PROTECT)
+    
+    calculation_method = models.CharField(_("Calculation Method"), max_length=100)
+    rebalancing_frequency = models.CharField(max_length=50, blank=True)
+    constituent_count = models.PositiveIntegerField(null=True, blank=True)
+    base_index = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="derived_indices"
+    )
+    metadata = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        verbose_name = _("Index")
+        verbose_name_plural = _("Indices")
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("Index_detail", kwargs={"pk": self.pk})
+
+class IndexHistory(models.Model):
+    index = models.ForeignKey(Index, on_delete=models.CASCADE, related_name="history")
+    date = models.DateField()
+    value = models.DecimalField(max_digits=12, decimal_places=2)
+
+    class Meta:
+        unique_together = ("index", "date")
+        ordering = ["date"]
+
+    def __str__(self):
+        return f"{self.index.ticker} - {self.date} - {self.value}"
+
+
 class Company(models.Model):
 
     EXCHANGE_CHOICES = (
