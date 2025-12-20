@@ -3,59 +3,67 @@ from stocks.models import (
     Company,
     FinancialValue,
     Metric,
-    CompanyFundamental
+    CompanyFundamental,
+    TimePeriod
 )
+from django.db.models import Sum,Count
+from datetime import date
 
 
-def safe_div(a, b):
+def safe_percentage(a, b):
     if a is None or b in (None, 0):
         return None
     return (Decimal(a) / Decimal(b)) * 100
 
-
-def get_latest_value(company, metric_code):
-    try:
-        metric = Metric.objects.get(code=metric_code.upper())
-    except Metric.DoesNotExist:
-        return None
-
-    fv = (
-        FinancialValue.objects
-        .filter(company=company, metric=metric)
-        .select_related("time_period")
-        .order_by("-time_period__year", "-time_period__quarter")
-        .first()
-    )
+def get_annual_value(company,metric_code):
+    fv=FinancialValue.objects.filter(
+        company=company,
+        metric__code=metric_code,
+        time_period__period_type='annual',
+    ).select_related('time_period').order_by('-time_period__year').first()
     return fv.value if fv else None
+
+def get_yearly_quarter_value_sum(company,year, metric_code):
+    qs = FinancialValue.objects.filter(
+        company=company,
+        metric__code=metric_code,
+        time_period__period_type="quarterly",
+        time_period__year=year
+    ).select_related('time_period').aggregate(
+        total=Sum('value'),
+        cnt=Count('value')
+    )
+    return qs['total'] if qs['cnt']==4 else None
+
 
 
 def generate_company_fundamentals(company):
 
-    revenue = get_latest_value(company, "SALES")
-    net_profit = get_latest_value(company, "NET_PROFIT")
-    operating_profit = get_latest_value(company, "OPERATING_PROFIT")
+    q_year = date.today().year -1
+    revenue = get_yearly_quarter_value_sum(company,q_year,"SALES")
+    operating_profit = get_yearly_quarter_value_sum(company,q_year,"OPERATING_PROFIT")
+    net_profit = get_yearly_quarter_value_sum(company,q_year,"NET_PROFIT")
 
-    equity_share_capital = get_latest_value(company, "EQUITY_SHARE_CAPITAL")
-    reserves = get_latest_value(company, "RESERVES")
-    total_debt = get_latest_value(company, "BORROWINGS")
+    equity_share_capital = get_annual_value(company,"EQUITY_SHARE_CAPITAL")
+    reserves = get_annual_value(company,"RESERVES")
+    total_debt = get_annual_value(company,"BORROWINGS")
 
     total_equity = (
         (equity_share_capital or 0) +
         (reserves or 0)
         if equity_share_capital or reserves else None
     )
-
     capital_employed = (
         (total_equity or 0) +
         (total_debt or 0)
         if total_equity or total_debt else None
     )
 
-    operating_margin = safe_div(operating_profit, revenue)
-    net_margin = safe_div(net_profit, revenue)
-    roe = safe_div(net_profit, total_equity)
-    roce = safe_div(operating_profit, capital_employed)
-    debt_to_equity = safe_div(total_debt, total_equity)
+    operating_margin = safe_percentage(operating_profit, revenue)
+    net_margin = safe_percentage(net_profit, revenue)
+    roe = safe_percentage(net_profit, total_equity)
+    roce = safe_percentage(operating_profit, capital_employed)
+    debt_to_equity = safe_percentage(total_debt, total_equity)
 
     CompanyFundamental.objects.update_or_create(
         company=company,
@@ -68,6 +76,15 @@ def generate_company_fundamentals(company):
             "debt_to_equity": debt_to_equity,
         }
     )
+
+
+
+
+
+
+
+
+
 
 
 def generate_all_company_fundamentals():
