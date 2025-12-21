@@ -9,7 +9,7 @@ class PriceVolumeChart {
 
         this.init();
     }
-
+    
     init() {
         this.renderRangeButtons();
         this.updateChartData(this.getDefaultRange());
@@ -217,12 +217,14 @@ class PriceVolumeChart {
                         }
                     }
                 },
+                
                 scales: {
                     x: {
                         grid: { display: false },
                         ticks: {
                             color: '#64748B',
-                            maxTicksLimit: 8
+                            maxTicksLimit: isMobile ? 2:8,
+                            display : true
                         }
                     },
                     'y-volume': {
@@ -269,7 +271,7 @@ function initPriceVolumeCharts(root = document) {
         console.error('Chart init failed:', e);
     }
 }
-
+const isMobile = window.innerWidth < 640;
 window.addEventListener('load', () => {
     initPriceVolumeCharts();
 });

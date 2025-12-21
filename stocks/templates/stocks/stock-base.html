@@ -136,8 +136,8 @@
     {% include "stocks/partials/financial_table.html" with title="Balance Sheet" table_data=bs_data periods=bs_periods %}
 
     {% include "stocks/partials/financial_table.html" with title="Cash Flows" table_data=cf_data periods=cf_periods %}
-
-
+    
+    {% include "stocks/partials/financial_table.html" with title="Ratios" table_data=ratios_data periods=periods %}
 
     <style>
         .glass-panel {

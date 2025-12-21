@@ -63,7 +63,7 @@ def generate_company_fundamentals(company):
     net_margin = safe_percentage(net_profit, revenue)
     roe = safe_percentage(net_profit, total_equity)
     roce = safe_percentage(operating_profit, capital_employed)
-    debt_to_equity = safe_percentage(total_debt, total_equity)
+    debt_to_equity = safe_percentage(total_debt, total_equity)/100
 
     CompanyFundamental.objects.update_or_create(
         company=company,
